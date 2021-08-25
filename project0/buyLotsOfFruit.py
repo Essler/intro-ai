@@ -37,7 +37,11 @@ def buyLotsOfFruit(orderList):
     totalCost = 0.0
 
     for (fruit, numPounds) in orderList:
-        totalCost += fruitPrices[fruit] * numPounds
+        try:
+            totalCost += fruitPrices[fruit] * numPounds
+        except KeyError:
+            print(f"KeyError: Unrecognized fruit '{fruit}'")
+            return None
 
     return totalCost
 
