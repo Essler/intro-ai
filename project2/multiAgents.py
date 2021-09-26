@@ -74,7 +74,38 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        walls = successorGameState.getWalls()
+        if newPos in walls:
+            return 999999
+
+        closestFoodDistance = 999999
+        # print("LOOP =======================")
+        # print(f"newPos: {newPos}")
+        for x in range(0, newFood.width):
+            for y in range(0, newFood.height):
+                if newFood[x][y] and newPos != (x, y):
+                    # print(f"(x,y): ({x},{y})")
+                    foodDistance = manhattanDistance(newPos, (x, y))
+                    if foodDistance < closestFoodDistance:
+                        closestFoodDistance = foodDistance
+                        # print(f"new closest food: ({x}, {y}), distance: {closestFoodDistance}")
+
+        averageGhostDistance = 0
+        for ghostState in newGhostStates:
+            ghostDistance = manhattanDistance(newPos, ghostState.configuration.pos)
+            if ghostState.scaredTimer > 0:
+                # ghostDistance = 0  # If ghost is scared, being close is OK
+                ghostDistance = -ghostDistance
+            averageGhostDistance += ghostDistance  # Keep a running total
+        averageGhostDistance /= len(newGhostStates)  # Take the actual average
+
+        score = successorGameState.getScore()
+
+        scoreWt = 1/10
+        avgGhostDistWt = 1/100
+        rval = (1/closestFoodDistance) + (score * scoreWt) + (averageGhostDistance * avgGhostDistWt)
+        # print(f"returning {rval}")
+        return rval
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -138,7 +169,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        util.raiseNotDefined()  # TODO
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -151,7 +182,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        util.raiseNotDefined()  # TODO
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -167,7 +198,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        util.raiseNotDefined()  # TODO
 
 
 def betterEvaluationFunction(currentGameState):
@@ -178,7 +209,7 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    util.raiseNotDefined()  # TODO
 
 
 # Abbreviation
