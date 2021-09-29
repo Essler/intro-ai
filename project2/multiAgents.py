@@ -79,16 +79,12 @@ class ReflexAgent(Agent):
             return 999999
 
         closestFoodDistance = 999999
-        # print("LOOP =======================")
-        # print(f"newPos: {newPos}")
         for x in range(0, newFood.width):
             for y in range(0, newFood.height):
                 if newFood[x][y] and newPos != (x, y):
-                    # print(f"(x,y): ({x},{y})")
                     foodDistance = manhattanDistance(newPos, (x, y))
                     if foodDistance < closestFoodDistance:
                         closestFoodDistance = foodDistance
-                        # print(f"new closest food: ({x}, {y}), distance: {closestFoodDistance}")
 
         averageGhostDistance = 0
         for ghostState in newGhostStates:
@@ -104,7 +100,6 @@ class ReflexAgent(Agent):
         scoreWt = 1/10
         avgGhostDistWt = 1/100
         rval = (1/closestFoodDistance) + (score * scoreWt) + (averageGhostDistance * avgGhostDistWt)
-        # print(f"returning {rval}")
         return rval
 
 
