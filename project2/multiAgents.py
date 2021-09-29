@@ -172,41 +172,40 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        def value(state, agentIndex, actQueue, depth=0):
+        def value(state, agentIndex, firstAction, depth=0):
             # If state is terminal state, return state's utility
             if state.isWin() or state.isLose() or depth >= (k * self.depth):
-                return self.evaluationFunction(state), actQueue
+                return self.evaluationFunction(state), firstAction
 
             # Maximize for agent 0 (pacman), minimize for all others (ghosts)
-            if agentIndex == _pacman:
-                return maximize(state, agentIndex, actQueue, depth)
+            if agentIndex == 0:
+                return maximize(state, agentIndex, firstAction, depth)
             else:
-                return minimize(state, agentIndex, actQueue, depth)
+                return minimize(state, agentIndex, firstAction, depth)
 
-        def maximize(state, agentIndex, actQueue, depth):
+        def maximize(state, agentIndex, firstAction, depth):
             maxi = -999999
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, depth+1)
                 if utility > maxi:
                     maxi = utility
-                    actQueue.push(action)
-            return maxi, actQueue
+                    if depth == 0:
+                        firstAction = action
+            return maxi, firstAction
 
-        def minimize(state, agentIndex, actQueue, depth):
+        def minimize(state, agentIndex, firstAction, depth):
             mini = 999999
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, depth+1)
                 if utility < mini:
                     mini = utility
-            return mini, actQueue
+            return mini, firstAction
 
-        _pacman = 0
         k = gameState.getNumAgents()
-        (utilityValue, actionQueue) = value(gameState, _pacman, util.Queue(), 0)
-
-        return actionQueue.pop()
+        (utilityValue, act) = value(gameState, 0, None, 0)
+        return act
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -219,47 +218,48 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        def value(state, agentIndex, actQueue, alphaBeta, depth=0):
+        def value(state, agentIndex, firstAction, alphaBeta, depth=0):
             # If state is terminal state, return state's utility
             if state.isWin() or state.isLose() or depth >= (k * self.depth):
-                return self.evaluationFunction(state), actQueue
+                return self.evaluationFunction(state), firstAction
 
             # Maximize for agent 0 (pacman), minimize for all others (ghosts)
-            if agentIndex == _pacman:
-                return maximize(state, agentIndex, actQueue, alphaBeta, depth)
+            if agentIndex == 0:
+                return maximize(state, agentIndex, firstAction, alphaBeta, depth)
             else:
-                return minimize(state, agentIndex, actQueue, alphaBeta, depth)
+                return minimize(state, agentIndex, firstAction, alphaBeta, depth)
 
-        def maximize(state, agentIndex, actQueue, alphaBeta, depth):
+        def maximize(state, agentIndex, firstAction, alphaBeta, depth):
             (alpha, beta) = alphaBeta
             maxi = alpha
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, alphaBeta, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, alphaBeta, depth+1)
                 if utility > maxi:
                     maxi = utility
-                    actQueue.push(action)
+                    if depth == 0:
+                        firstAction = action
                 if maxi > alpha:
-                    return alpha, actQueue
-            return maxi, actQueue
+                    return alpha, firstAction
+            return maxi, firstAction
 
-        def minimize(state, agentIndex, actQueue, alphaBeta, depth):
+        def minimize(state, agentIndex, firstAction, alphaBeta, depth):
             (alpha, beta) = alphaBeta
             mini = beta
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, alphaBeta, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, alphaBeta, depth+1)
                 if utility < mini:
                     mini = utility
+                    if depth == 0:
+                        firstAction = action
                 if mini < beta:
-                    return beta, actQueue
-            return mini, actQueue
+                    return beta, firstAction
+            return mini, firstAction
 
-        _pacman = 0
         k = gameState.getNumAgents()
-        (utilityValue, actionQueue) = value(gameState, _pacman, util.Queue(), (-999999,999999), 0)
-
-        return actionQueue.pop()
+        (utilityValue, act) = value(gameState, 0, None, (-999999,999999), 0)
+        return act
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -275,32 +275,33 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        def value(state, agentIndex, actQueue, depth=0):
+        def value(state, agentIndex, firstAction, depth=0):
             if state.isWin() or state.isLose() or depth >= (k * self.depth):
-                return self.evaluationFunction(state), actQueue
+                return self.evaluationFunction(state), firstAction
 
             if agentIndex == 0:
-                return maximize(state, agentIndex, actQueue, depth)
+                return maximize(state, agentIndex, firstAction, depth)
             else:
-                return chance(state, agentIndex, actQueue, depth)
+                return chance(state, agentIndex, firstAction, depth)
 
-        def maximize(state, agentIndex, actQueue, depth):
+        def maximize(state, agentIndex, firstAction, depth):
             maxi = -999999
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                utility, actQueue = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, depth+1)
                 if utility > maxi:
                     maxi = utility
-                    actQueue.push(action)
-            return maxi, actQueue
+                    if depth == 0:
+                        firstAction = action
+            return maxi, firstAction
 
-        def chance(state, agentIndex, actQueue, depth):
+        def chance(state, agentIndex, firstAction, depth):
             average = 0
             utilities = []
 
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                utility, actQueue = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, depth+1)
                 utilities.append(utility)
 
             # Ghosts choose uniformly random, so we average the utility values
@@ -308,12 +309,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 average += utility
             average /= len(utilities)
 
-            return average, actQueue
+            return average, firstAction
 
         k = gameState.getNumAgents()
-        _pacmanAgent = 0
-        (utilityValue, actionQueue) = value(gameState, _pacmanAgent, util.Queue())
-        return actionQueue.pop()
+        (utilityValue, act) = value(gameState, 0, None)
+        return act
 
 
 def betterEvaluationFunction(currentGameState):
