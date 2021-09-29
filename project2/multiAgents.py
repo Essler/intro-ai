@@ -211,7 +211,47 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()  # TODO
+        def value(state, agentIndex, actQueue, alphaBeta, depth=0):
+            # If state is terminal state, return state's utility
+            if state.isWin() or state.isLose() or depth >= (k * self.depth):
+                return self.evaluationFunction(state), actQueue
+
+            # Maximize for agent 0 (pacman), minimize for all others (ghosts)
+            if agentIndex == _pacman:
+                return maximize(state, agentIndex, actQueue, alphaBeta, depth)
+            else:
+                return minimize(state, agentIndex, actQueue, alphaBeta, depth)
+
+        def maximize(state, agentIndex, actQueue, alphaBeta, depth):
+            (alpha, beta) = alphaBeta
+            maxi = alpha
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, alphaBeta, depth+1)
+                if utility > maxi:
+                    maxi = utility
+                    actQueue.push(action)
+                if maxi > alpha:
+                    return alpha, actQueue
+            return maxi, actQueue
+
+        def minimize(state, agentIndex, actQueue, alphaBeta, depth):
+            (alpha, beta) = alphaBeta
+            mini = beta
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, alphaBeta, depth+1)
+                if utility < mini:
+                    mini = utility
+                if mini < beta:
+                    return beta, actQueue
+            return mini, actQueue
+
+        _pacman = 0
+        k = gameState.getNumAgents()
+        (utilityValue, actionQueue) = value(gameState, _pacman, util.Queue(), (-999999,999999), 0)
+
+        return actionQueue.pop()
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
