@@ -135,6 +135,14 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 
+def printDataStructure(dataStructure):
+    """
+    Print a Stack, Queue, or PriorityQueue from util.
+    """
+    for item in dataStructure.list:
+        print(item)
+
+
 class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
