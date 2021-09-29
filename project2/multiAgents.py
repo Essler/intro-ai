@@ -164,7 +164,41 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()  # TODO
+        def value(state, agentIndex, actQueue, depth=0):
+            # If state is terminal state, return state's utility
+            if state.isWin() or state.isLose() or depth >= (k * self.depth):
+                return self.evaluationFunction(state), actQueue
+
+            # Maximize for agent 0 (pacman), minimize for all others (ghosts)
+            if agentIndex == _pacman:
+                return maximize(state, agentIndex, actQueue, depth)
+            else:
+                return minimize(state, agentIndex, actQueue, depth)
+
+        def maximize(state, agentIndex, actQueue, depth):
+            maxi = -999999
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                if utility > maxi:
+                    maxi = utility
+                    actQueue.push(action)
+            return maxi, actQueue
+
+        def minimize(state, agentIndex, actQueue, depth):
+            mini = 999999
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                (utility, actQueue) = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                if utility < mini:
+                    mini = utility
+            return mini, actQueue
+
+        _pacman = 0
+        k = gameState.getNumAgents()
+        (utilityValue, actionQueue) = value(gameState, _pacman, util.Queue(), 0)
+
+        return actionQueue.pop()
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
