@@ -329,7 +329,6 @@ def betterEvaluationFunction(currentGameState):
     "*** YOUR CODE HERE ***"
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
-    ghostStates = currentGameState.getGhostStates()
 
     closestFoodDistance = 999999
     for x in range(0, food.width):
@@ -339,20 +338,10 @@ def betterEvaluationFunction(currentGameState):
                 if foodDistance < closestFoodDistance:
                     closestFoodDistance = foodDistance
 
-    averageGhostDistance = 0
-    for ghostState in ghostStates:
-        ghostDistance = manhattanDistance(pos, ghostState.configuration.pos)
-        if ghostState.scaredTimer > 0:
-            # If ghost is scared, being close is OK
-            ghostDistance = -ghostDistance
-        averageGhostDistance += ghostDistance  # Keep a running total
-    averageGhostDistance /= len(ghostStates)  # Take the actual average
-
     score = currentGameState.getScore()
 
-    scoreWt = 1/1
-    avgGhostDistWt = 0
-    return (1 / closestFoodDistance) + (score * scoreWt) + (averageGhostDistance * avgGhostDistWt)
+    scoreWt = 1/10
+    return (1 / closestFoodDistance) + (score * scoreWt)
 
 
 # Abbreviation
