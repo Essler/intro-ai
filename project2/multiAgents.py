@@ -267,7 +267,45 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()  # TODO
+        def value(state, agentIndex, actQueue, depth=0):
+            if state.isWin() or state.isLose() or depth >= (k * self.depth):
+                return self.evaluationFunction(state), actQueue
+
+            if agentIndex == 0:
+                return maximize(state, agentIndex, actQueue, depth)
+            else:
+                return chance(state, agentIndex, actQueue, depth)
+
+        def maximize(state, agentIndex, actQueue, depth):
+            maxi = -999999
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                utility, actQueue = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                if utility > maxi:
+                    maxi = utility
+                    actQueue.push(action)
+            return maxi, actQueue
+
+        def chance(state, agentIndex, actQueue, depth):
+            average = 0
+            utilities = []
+
+            for action in state.getLegalActions(agentIndex):
+                nextState = state.generateSuccessor(agentIndex, action)
+                utility, actQueue = value(nextState, (agentIndex+1)%k, actQueue, depth+1)
+                utilities.append(utility)
+
+            # Ghosts choose uniformly random, so we average the utility values
+            for utility in utilities:
+                average += utility
+            average /= len(utilities)
+
+            return average, actQueue
+
+        k = gameState.getNumAgents()
+        _pacmanAgent = 0
+        (utilityValue, actionQueue) = value(gameState, _pacmanAgent, util.Queue())
+        return actionQueue.pop()
 
 
 def betterEvaluationFunction(currentGameState):
