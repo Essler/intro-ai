@@ -313,10 +313,38 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: Weighted sum of distance to closest food pellet, current score, and average distance to ghosts.
+
+    Closest food is the most important, followed by the score, then the ghost's distances. Whether or not a ghost is
+    scared is considered, and the average distance favors parts of the grid with less ghosts.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()  # TODO
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+
+    closestFoodDistance = 999999
+    for x in range(0, food.width):
+        for y in range(0, food.height):
+            if food[x][y] and pos != (x, y):
+                foodDistance = manhattanDistance(pos, (x, y))
+                if foodDistance < closestFoodDistance:
+                    closestFoodDistance = foodDistance
+
+    averageGhostDistance = 0
+    for ghostState in ghostStates:
+        ghostDistance = manhattanDistance(pos, ghostState.configuration.pos)
+        if ghostState.scaredTimer > 0:
+            # If ghost is scared, being close is OK
+            ghostDistance = -ghostDistance
+        averageGhostDistance += ghostDistance  # Keep a running total
+    averageGhostDistance /= len(ghostStates)  # Take the actual average
+
+    score = currentGameState.getScore()
+
+    scoreWt = 1/1
+    avgGhostDistWt = 0
+    return (1 / closestFoodDistance) + (score * scoreWt) + (averageGhostDistance * avgGhostDistWt)
 
 
 # Abbreviation
