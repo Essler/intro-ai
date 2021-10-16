@@ -219,43 +219,83 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         def value(state, agentIndex, firstAction, alphaBeta, depth=0):
+            """
+            @summary: Returns the utility value of a node, while implementing alpha-beta pruning
+
+            @param state:       the GameState, or node, for which to derive its utility value
+            @param agentIndex:  an integer representing which agent is determining value; 0 is pacman, 1+ are ghosts
+            @param firstAction: a string representing the single action that provides the greatest utility
+            @param alphaBeta:   a tuple containing the values of alpha and beta; used for pruning
+            @param depth:       an integer representing the current tree depth of the search
+
+            @return: a tuple containing an integer utility value of GameState
+                     and a string initial action to obtain that utility
+            """
             # If state is terminal state, return state's utility
+            #    Here, self.depth is actually the ply and not the tree depth.
+            #    In order to compare the two, we multiply the ply by the number of agents. (k * self.depth)
             if state.isWin() or state.isLose() or depth >= (k * self.depth):
+                # We return not only the utility value, but also the initial action at root that gets pacman there.
                 return self.evaluationFunction(state), firstAction
 
             # Maximize for agent 0 (pacman), minimize for all others (ghosts)
+            #    All parameters are propagated downward without change.
             if agentIndex == 0:
                 return maximize(state, agentIndex, firstAction, alphaBeta, depth)
             else:
                 return minimize(state, agentIndex, firstAction, alphaBeta, depth)
 
         def maximize(state, agentIndex, firstAction, alphaBeta, depth):
+            """
+            @summary: Maximize the utility value from all successor states
+
+            @param state:       the GameState, or node, for which to derive its utility value
+            @param agentIndex:  an integer representing which agent is determining value; 0 is pacman, 1+ are ghosts
+            @param firstAction: a string representing the single action that provides the greatest utility
+            @param alphaBeta:   a tuple containing the values of alpha and beta; used for pruning
+            @param depth:       an integer representing the current tree depth of the search
+
+            @return: a tuple containing an integer utility value of GameState
+                     and a string initial action to obtain that utility
+            """
             (alpha, beta) = alphaBeta
-            maxi = alpha
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, alphaBeta, depth+1)
-                if utility > maxi:
-                    maxi = utility
+                # Get utility of next GameState for a legal action
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, (alpha, beta), depth+1)
+                if utility > alpha:
+                    alpha = utility
                     if depth == 0:
                         firstAction = action
-                if maxi > alpha:
+                if alpha >= beta and depth != 0:
                     return alpha, firstAction
-            return maxi, firstAction
+            return alpha, firstAction
 
         def minimize(state, agentIndex, firstAction, alphaBeta, depth):
+            """
+            @summary: Minimize the utility value from all successor states
+
+            @param state:       the GameState, or node, for which to derive its utility value
+            @param agentIndex:  an integer representing which agent is determining value; 0 is pacman, 1+ are ghosts
+            @param firstAction: a string representing the single action that provides the greatest utility
+            @param alphaBeta:   a tuple containing the values of alpha and beta; used for pruning
+            @param depth:       an integer representing the current tree depth of the search
+
+            @return: a tuple containing an integer utility value of GameState
+                     and a string initial action to obtain that utility
+            """
             (alpha, beta) = alphaBeta
-            mini = beta
             for action in state.getLegalActions(agentIndex):
                 nextState = state.generateSuccessor(agentIndex, action)
-                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, alphaBeta, depth+1)
-                if utility < mini:
-                    mini = utility
+                # Get utility of next GameState for a legal action
+                (utility, firstAction) = value(nextState, (agentIndex+1)%k, firstAction, (alpha, beta), depth+1)
+                if utility < beta:
+                    beta = utility
                     if depth == 0:
                         firstAction = action
-                if mini < beta:
+                if alpha >= beta and depth != 0:
                     return beta, firstAction
-            return mini, firstAction
+            return beta, firstAction
 
         k = gameState.getNumAgents()
         (utilityValue, act) = value(gameState, 0, None, (-999999,999999), 0)
