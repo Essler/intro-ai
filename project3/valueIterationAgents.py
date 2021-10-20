@@ -122,25 +122,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        maxAction = None
-        maxValue = 0
-
-        # For each legal action from a state...
-        actions = self.mdp.getPossibleActions(state)
-
-        if len(actions) == 0:
-            return None
-
-        for a in actions:
-            # Get the Q-Value
-            qValue = self.computeQValueFromValues(state, a)
-            # if qValue > self.getValue(state):
-            #     self.values[state] = qValue
-            if qValue > maxValue:
-                maxValue = qValue
-                maxAction = a
-
-        return maxAction
+        return self.getMaxAction(state)
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
@@ -153,6 +135,29 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def getQValue(self, state, action):
         return self.computeQValueFromValues(state, action)
+
+    def getMax(self, s):
+        maxValue = 0
+        maxAction = None
+
+        # For each legal action from a state...
+        actions = self.mdp.getPossibleActions(s)
+        for a in actions:
+            # Get the Q-value
+            qValue = self.computeQValueFromValues(s, a)
+
+            # Keep track of the highest Q-value across all possible actions from s
+            if qValue > maxValue:
+                maxValue = qValue
+                maxAction = a
+
+        return maxValue, maxAction
+
+    def getMaxQValue(self, s):
+        return self.getMax(s)[0]
+
+    def getMaxAction(self, s):
+        return self.getMax(s)[1]
 
 
 class AsynchronousValueIterationAgent(ValueIterationAgent):
