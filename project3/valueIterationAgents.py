@@ -24,7 +24,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+import math
 
 import mdp, util
 
@@ -70,17 +70,22 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # For the specified number of iterations...
         for k in range(self.iterations):
-            print(f"K:${k}")
+            iterationValues = util.Counter()
+
             # And for each state in the MDP...
             for s in states:
-                # And for each legal action from a state...
+                maxValue = -math.inf
+                # And for each possible action from a state...
                 actions = self.mdp.getPossibleActions(s)
                 for a in actions:
                     # Get the Q-Value
                     qValue = self.computeQValueFromValues(s, a)
                     # Maximize the value
-                    if qValue > self.getValue(s):
-                        self.values[s] = qValue
+                    if qValue > maxValue:
+                        maxValue = qValue
+                    iterationValues[s] = maxValue
+
+            self.values = iterationValues
 
     def getValue(self, state):
         """
@@ -108,7 +113,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             reward = self.mdp.getReward(state, action, nextState)
 
             # add next value, weighted by its probability, to the summation
-            qValue += prob * (reward + (self.discount * self.getValue(nextState)))
+            qValue += prob * (reward + self.discount * self.getValue(nextState))
 
         return qValue
 
@@ -137,10 +142,10 @@ class ValueIterationAgent(ValueEstimationAgent):
         return self.computeQValueFromValues(state, action)
 
     def getMax(self, s):
-        maxValue = 0
+        maxValue = -math.inf
         maxAction = None
 
-        # For each legal action from a state...
+        # For each possible action from a state...
         actions = self.mdp.getPossibleActions(s)
         for a in actions:
             # Get the Q-value
