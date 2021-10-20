@@ -202,6 +202,7 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         for k in range(self.iterations):
             # Get the next state in the cycle
             s = states[k % len(states)]
+            maxValue = -math.inf
 
             # And for each legal action from that state...
             actions = self.mdp.getPossibleActions(s)
@@ -209,8 +210,12 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
                 # Get the Q-Value
                 qValue = self.computeQValueFromValues(s, a)
                 # Maximize the value
-                if qValue > self.getValue(s):
-                    self.values[s] = qValue
+                if qValue > maxValue:
+                    maxValue = qValue
+
+            # Only if the state has available actions do we update the value
+            if len(actions) > 0:
+                self.values[s] = maxValue
 
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
