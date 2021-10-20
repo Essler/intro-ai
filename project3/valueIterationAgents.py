@@ -227,5 +227,58 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        util.raiseNotDefined()
-        "*** YOUR CODE HERE ***"
+        """*** YOUR CODE HERE ***"""
+
+        # Compute predecessors of all states.
+        predecessors = self.computeAllPredecessors()
+
+        # Initialize an empty priority queue.
+        q = util.PriorityQueue()
+
+        # For each non-terminal state s, do:
+        for s in self.mdp.getStates():
+            if not self.mdp.isTerminal(s):
+                # Find the absolute value of the difference between the current value of s in self.values
+                # and the highest Q-value across all possible actions from s.
+                diff = abs(self.getValue(s) - self.getMaxQValue(s))
+
+                # Push s into the priority queue with priority -diff.
+                # We use a negative because the priority queue is a min heap,
+                # but we want to prioritize updating states that have a higher error.
+                q.push(s, -diff)
+
+        # For iteration in 0, 1, 2, ..., self.iterations - 1, do:
+        for k in range(self.iterations):
+            # If the priority queue is empty, then terminate.
+            if q.isEmpty():
+                break
+
+            # Pop a state s off the priority queue.
+            s = q.pop()
+
+            # Update the value of s (if it is not a terminal state) in self.values.
+            if not self.mdp.isTerminal(s):
+                self.values[s] = self.getMaxQValue(s)
+
+            # For each predecessor p of s, do:
+            for p in predecessors[s]:
+                # Find the absolute value of the difference between the current value of s in self.values
+                # and the highest Q-value across all possible actions from p
+                diff = abs(self.getValue(p) - self.getMaxQValue(p))
+
+                # If diff > theta, push p into the priority queue with priority -diff.
+                if diff > self.theta:
+                    # as long as it does not already exist in the priority queue with equal or lower priority.
+                    q.update(p, -diff)
+
+    def computeAllPredecessors(self):
+        predecessors = {}
+        for s in self.mdp.getStates():
+            for a in self.mdp.getPossibleActions(s):
+                t = self.mdp.getTransitionStatesAndProbs(s, a)
+                for (nextState, probability) in t:
+                    if nextState not in predecessors:
+                        # Make sure to store predecessors in a set, not a list, to avoid duplicates.
+                        predecessors[nextState] = set()
+                    predecessors[nextState].add(s)
+        return predecessors
