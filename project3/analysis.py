@@ -71,10 +71,12 @@ def question3e():
 
 
 def question8():
+    # Is there an epsilon and a learning rate for which it is highly likely (greater than 99%)
+    # that the optimal policy will be learned after 50 iterations?
     answerEpsilon = None
     answerLearningRate = None
-    return answerEpsilon, answerLearningRate
     # If not possible, return 'NOT POSSIBLE'
+    return 'NOT POSSIBLE'
 
 
 if __name__ == '__main__':
